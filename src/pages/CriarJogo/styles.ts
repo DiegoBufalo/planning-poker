@@ -16,19 +16,7 @@ export const Container = styled.div`
         margin-bottom: 20px;
     }
 
-     input {
-        width: 610px;
-        height: 50px;
-        border-radius: 8px;
-        border: 2px solid #a8aeb2;
-        padding-left: 30px;
-
-        :focus-visible {
-            border: 2px solid #3993ff;
-            outline: none;
-        }
-    }   
-
+     
      select {
         width: 650px;
         height: 50px;
