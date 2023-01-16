@@ -11,99 +11,28 @@ export const Container = styled.div`
 `;
 
 export const ModalContent = styled.div`
-    margin-top: 50px;
     width: 100%;
-
-    div.spec-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 30px;
-  }
-
-  div.content {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 70px;
+    justify-content: space-around;
+
+  button.button-player {
     width: 100%;
-  }
-
-  input.input-name {
-      width: 100%;
-      height: 50px;
-  }
-
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 53px;
-    height: 25px;
-  }
-
-  .switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-
-    :before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      -webkit-transition: .4s;
-      transition: .4s;
+    height: 50px;
+    border: none;
+    background-color: #3993ff;
+    border-radius: 8px;
+    
+    > span {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
     }
   }
 
-  input:checked + .slider {
-    background-color: #2196F3;
-  }
-
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
-  }
-
-  input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
-  }
-
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 34px;
-  }
-
-  .slider.round:before {
-    border-radius: 50%;
-  }
-
-  span.spec {
-    font-size: 1.1rem;
-    color: #48545d;
-    margin-left: 15px;
-  }
-
-  button.start-game {
-    margin-top: 30px;
-    width: 106%;
+  button.button-spectator {
+    width: 100%;
     height: 50px;
     border: none;
     background-color: #3993ff;

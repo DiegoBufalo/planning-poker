@@ -18,11 +18,12 @@ export const Container = styled.div`
     div.modal {
         display: flex;
         flex-direction: column;
-        height: 320px;
-        width: 550px;
+        align-items: center;
+        height: 180px;
+        width: 300px;
         background-color: #fff;
         border-radius: 16px;
-        padding: 50px;
+        padding: 20px;
     }
 
     div.title {
@@ -32,6 +33,7 @@ export const Container = styled.div`
     }
 
     div.content {
-        width: 95%;
+        width: 100%;
+        height: 100%;
     }
 `

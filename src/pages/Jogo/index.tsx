@@ -1,7 +1,11 @@
-import { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-import { Input } from "../../components/Input";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { io } from "socket.io-client";
 import { Modal } from "../../components/Modal";
+import RoomContext from "../../context/room";
+import UserContext from "../../context/user";
+import { mockUsersPlaying } from "../../mock";
+import { UserPlaying } from "../../Types";
 import {
     BottomSideTable,
     Card,
@@ -16,24 +20,78 @@ import {
     UserCard
 } from "./style";
 
-
-
-
 export const Jogo = () => {
-    const [nomeUsuario, setNomeUsuario] = useState("");
-    const [isSpectator, setIsSpectator] = useState(false);
-    const [showModal, setShowModal] = useState(true);
+
+    //temp
     const fibonacciSequence = ['0', '½', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '?']
+
+    //contexts
+    const { enterRoom, isUserLogged, isUserPlaying, userContext } = useContext(UserContext);
+    const { roomContext, isUserInRoom, insertNewUser } = useContext(RoomContext);
+
+    //hooks
+    const navigate = useNavigate();
+    const { roomId } = useParams();
+
+    //states
+    const [showModal, setShowModal] = useState(false);
     const [selectedCard, setSelectedCard] = useState('');
+    const [usersPlaying, setUsersPlaying] = useState<UserPlaying[]>(mockUsersPlaying());
 
-    const handleSubmit = () => {
-        const data = {
-            idUsuario: uuidv4(),
-            nomeUsuario: nomeUsuario,
-            isSpectator: isSpectator,
+    // definição de posição na table
+    const [topSeat, setTopSeat] = useState<UserPlaying[]>([]);
+    const [bottomSeat, setBottomSeat] = useState<UserPlaying[]>([]);
+    const [LeftSeat, setLeftSeat] = useState<UserPlaying[]>([]);
+    const [rightSeat, setRightSeat] = useState<UserPlaying[]>([]);
+
+    const socket = io(`ws://localhost:3000/sala/${roomId}`);
+    socket.on("att-room", (...args) => {
+        console.log(args);
+    });
+
+    useEffect(() => {
+        if (!isUserLogged()) { navigate(`/login?redirect=${roomId}`); }
+        if (!isUserPlaying()) { setShowModal(true); }
+    })
+
+
+    useEffect(() => {
+        let topSeatTemp: UserPlaying[] = [];
+        let rightSeatTemp: UserPlaying[] = [];
+        let bottomSeatTemp: UserPlaying[] = [];
+        let LeftSeatTemp: UserPlaying[] = [];
+
+        usersPlaying
+            .filter(value => !value.isSpectating)
+            .map((value, index) => {
+                if ([0, 4, 6, 8].includes(index)) {
+                    topSeatTemp.push(value);
+                } else if ([2, 10].includes(index)) {
+                    LeftSeatTemp.push(value);
+                } else if ([1, 5, 7, 9].includes(index)) {
+                    bottomSeatTemp.push(value);
+                } else if ([3, 11].includes(index)) {
+                    rightSeatTemp.push(value);
+                }
+            })
+
+        setTopSeat(topSeatTemp);
+        setBottomSeat(bottomSeatTemp);
+        setLeftSeat(LeftSeatTemp);
+        setRightSeat(rightSeatTemp);
+    }, [usersPlaying])
+
+
+    const handleSubmit = (isSpectator: boolean) => {
+        enterRoom(roomId!, isSpectator);
+        if (!isUserInRoom) {
+            insertNewUser({
+                userId: userContext.userId,
+                userName: userContext.userName,
+                isSpectating: isSpectator,
+            } as UserPlaying)
         }
-
-        console.log(data);
+        setShowModal(false);
     }
 
     return (
@@ -42,27 +100,35 @@ export const Jogo = () => {
                 <TableContainer className="table-container">
                     <div />
                     <TopSideTable className="top">
-                        <UserCard userName="asdsapolmd koasmdiko" />
-                        <UserCard userName="asdsapolmd koasmdiko" />
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
+                        {topSeat.map(value => {
+                            return (
+                                <UserCard id={value.userId} userName={value.userName} />
+                            );
+                        })}
                     </TopSideTable>
                     <div />
                     <LeftSideTable className="left" >
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
+                        {LeftSeat.map(value => {
+                            return (
+                                <UserCard key={value.userId} userName={value.userName} />
+                            );
+                        })}
                     </LeftSideTable>
                     <Table className="table" ></Table>
                     <RightSideTable className="right" >
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
+                        {rightSeat.map(value => {
+                            return (
+                                <UserCard key={value.userId} userName={value.userName} />
+                            );
+                        })}
                     </RightSideTable>
                     <div />
                     <BottomSideTable className="bottom" >
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
-                        <UserCard userName="user 1" />
+                        {bottomSeat.map(value => {
+                            return (
+                                <UserCard key={value.userId} userName={value.userName} />
+                            );
+                        })}
                     </BottomSideTable>
                     <div />
                 </TableContainer>
@@ -84,29 +150,26 @@ export const Jogo = () => {
                 </OptionsCards>
             </Container>
             {showModal && (
-                <Modal title="Defina seu nome para o jogo">
-                    <ModalContent>
-                        <Input adptativeSize setValue={setNomeUsuario} placeHolder='Defina seu apelido' />
-                        <div className="spec-button">
-                            <label className="switch">
-                                <input type="checkbox" checked={isSpectator} onChange={() => setIsSpectator(!isSpectator)} />
-                                <span className="slider round"></span>
-                            </label>
-                            <span className="spec">Juntar-se como espectador</span>
-                        </div>
+                <Modal title="O que você será?">
+                    <ModalContent className="modal-content">
                         <button
-                            className="start-game"
+                            className="button-player"
                             type="button"
-                            onClick={() => {
-                                handleSubmit();
-                                setShowModal(false);
-                            }}
+                            onClick={() => handleSubmit(false)}
                         >
-                            <span>Começar o jogo</span>
+                            <span>Serei um jogador</span>
+                        </button>
+                        <button
+                            className="button-spectator"
+                            type="button"
+                            onClick={() => handleSubmit(true)}
+                        >
+                            <span>Serei um espectador</span>
                         </button>
                     </ModalContent>
                 </Modal>
-            )}
+            )
+            }
         </>
     );
 }

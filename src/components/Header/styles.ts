@@ -11,8 +11,9 @@ export const Container = styled.div`
     div.logo {
         display: flex;
         align-items: center;
-
+        cursor: pointer;
         color: #3993ff;
+
         > svg {
             height: 30px;
             width: 30px;
@@ -52,7 +53,7 @@ export const Container = styled.div`
         }
     }
 
-    button.novo-jogo {
+    button.action-button {
         background: #3993ff;
         color: #fff;
         border-radius: 8px;
@@ -62,5 +63,26 @@ export const Container = styled.div`
         color: #3993ff;
         background: transparent;
         margin-right: 20px;
+    }
+
+    button.menu {
+        color: #3993ff;
+        background: transparent;
+        margin-right: 20px;
+ 
+        
+    }
+
+    div.drop-down {
+        display: none;
+
+        &.show {
+            display: flex;
+            position: absolute;
+            top: 100px;
+            right: 0;
+            width: 100%;
+            justify-content: end;
+        }
     }
 `
